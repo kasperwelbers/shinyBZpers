@@ -20,7 +20,7 @@ app_server <- function(input, output, session) {
 
   
   observeEvent(input$from_rows_selected,
-               highlight_text(input, output, state$sim, state$from_table))
+               highlight_text(input, output, tc, state$sim, state$from_table))
   
 }
 
