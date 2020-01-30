@@ -10,16 +10,18 @@ This only works with specific data for a project, so it's not yet intended for u
 How to use
 ----------
 
-This requires the development version of corpustools.
+This requires the development version of corpustools and the amcatr package (which is not on CRAN)
 
 ``` r
 devtools::install_github('kasperwelbers/corpustools')
+devtools::install_github('amcat/amcat-r')
 devtools::install_github('kasperwelbers/shinyBZcopy')
 ```
 
 The following code reads the data from amcat and launches an instance at the given port.
 
 ``` r
+library(shinyBZcopy)
 library(amcatr)
 conn = amcat.connect('https://amcat.nl')
 bz_data = create_bz_data(conn, project=1916, pers_set=79431, nieuws_set=79457, 

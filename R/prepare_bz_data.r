@@ -27,21 +27,27 @@ prepare_data <- function(tc, from_subset, to_subset, date_col, ...) {
   #usethis::use_data(tc, default_sim, overwrite=T)
 }
 
+#' Run the Shiny Application
+#'
+#' @param conn         An amcatr connection
+#' @param project      AmCAT project
+#' @param pers_set     AmCAT articleset with BZ press articles
+#' @param nieuws_set   AmCAT articleset with BZ news articles
+#' @param ... 
+#'
+#' @export
 create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457, ...) {
-  pers = amcat.hits(conn, queries='*', project=project, sets=pers_set, col = c('doc_id','date','medium','headline','text'))  
-  nieuws = amcat.hits(conn, queries='*', project=project, sets=nieuws_set, col = c('doc_id','date','medium','headline','text'))  
+  pers = amcatr::amcat.hits(conn, queries='*', project=project, sets=pers_set, col = c('doc_id','date','medium','headline','text'))  
+  nieuws = amcatr::amcat.hits(conn, queries='*', project=project, sets=nieuws_set, col = c('doc_id','date','medium','headline','text'))  
   
-
   pers$from = 1
   nieuws$from = 0
   d = rbind(pers, nieuws)
   d = d[order(d$id),]
   d$title = d$headline
-  
 
-  tc = create_tcorpus(d, doc_col='id', text_columns = c('title','text'), remember_spaces=T)
+  tc = corpustools::create_tcorpus(d, doc_col='id', text_columns = c('title','text'), remember_spaces=T)
   tc$meta$date = as.POSIXct(tc$meta$date)
-  tc$meta
   
   prepare_data(tc, 
                from_subset = from == 1,
