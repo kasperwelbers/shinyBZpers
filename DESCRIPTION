@@ -17,7 +17,7 @@ Imports:
     shinydashboard,
     corpustools,
     shinyjs,
-    tokenbrowser,
+    tokenbrowser (>= 0.1.2),
     data.table
 RoxygenNote: 6.1.1
 URL: https://github.com/kasperwelbers/shinycopy
