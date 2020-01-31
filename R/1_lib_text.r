@@ -55,15 +55,7 @@ highlight_text <- function(input, output, tc, sim, from_table) {
   if (length(xdoc) > 0) xdoc = gsub('<doc_id>.*</doc_id>', '<doc_id></doc_id>', xdoc)
   if (length(ydoc) > 0) ydoc = gsub('<doc_id>.*</doc_id>', '<doc_id></doc_id>', ydoc)
   
-  #if (length(xdoc) > 0) {
-  #  xdoc = gsub('<doc_id>.*</doc_id>', '<doc_id>%s</doc_id>', xdoc)
-  #  xdoc = sprintf(xdoc, x_meta$headline)
-  ###}
-  #if (length(xdoc) > 0) {
-  #  ydoc = gsub('<doc_id>.*</doc_id>', '<doc_id>%s</doc_id>', ydoc)
-  #  ydoc = sprintf(ydoc, y_meta$headline)
-  #}
-  
+
   ## max 2 consequtive hard enter
   xdoc = gsub('(<br>) *(<br>)((<br>)| )+', '<br><br>', xdoc)
   ydoc = gsub('(<br>) *(<br>)((<br>)| )+', '<br><br>', ydoc)
