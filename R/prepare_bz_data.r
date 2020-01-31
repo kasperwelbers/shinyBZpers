@@ -33,10 +33,11 @@ prepare_data <- function(tc, from_subset, to_subset, date_col, ...) {
 #' @param project      AmCAT project
 #' @param pers_set     AmCAT articleset with BZ press articles
 #' @param nieuws_set   AmCAT articleset with BZ news articles
+#' @param deduplicate  Optionally, a similarity threshold for duplicates (only for articles in same medium within 24 hour diffence)
 #' @param ... 
 #'
 #' @export
-create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457, ...) {
+create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=NA, ...) {
   pers = amcatr::amcat.hits(conn, queries='*', project=project, sets=pers_set, col = c('doc_id','date','medium','headline','text'))  
   nieuws = amcatr::amcat.hits(conn, queries='*', project=project, sets=nieuws_set, col = c('doc_id','date','medium','headline','text'))  
   
@@ -48,6 +49,9 @@ create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457,
 
   tc = corpustools::create_tcorpus(d, doc_col='id', text_columns = c('title','text'), remember_spaces=T)
   tc$meta$date = as.POSIXct(tc$meta$date)
+  
+  if (!is.na(deduplicate)) tc$deduplicate('token', meta_cols = 'medium', keep='last', hour_window=24, date_col = 'date', similarity = deduplicate)
+
   
   prepare_data(tc, 
                from_subset = from == 1,

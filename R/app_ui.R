@@ -32,7 +32,7 @@ app_ui <- function() {
 golem_add_external_resources <- function(){
   
   addResourcePath(
-    'www', system.file('app/www', package = 'shinycopy')
+    'www', system.file('app/www', package = 'shinyBZpers')
   )
  
   tags$head(

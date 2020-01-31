@@ -4,12 +4,22 @@ highlight_text <- function(input, output, tc, sim, from_table) {
   i = input$from_rows_selected
   
   x_doc = from_table$doc_id[i]
-  y_docs = sim[list(from=x_doc), , on='from', nomatch=0]$to
+  y_matches = sim[list(from=x_doc), , on='from', nomatch=0]
+  y_sim = y_matches$weight
+  y_docs = y_matches$to
+  
+  #y_docs = sort(y_docs)
     
   x = droplevels(tc$get(doc_id = x_doc))
   x_meta = droplevels(tc$get_meta(doc_id = x_doc))
+
   y = droplevels(tc$get(doc_id = y_docs))
   y_meta = droplevels(tc$get_meta(doc_id = y_docs))
+  y_meta$similarity = round(y_sim, 2)
+
+  ## workaround for bug in tokenbrowser (solved in 0.1.3, but not yet on cran)
+  y$doc_id = match(y$doc_id, unique(y$doc_id))
+  y_meta$doc_id = 1:nrow(y_meta)
   
   ngrams = input$ngrams
   ngrams = if (is.na(ngrams)) 1 else ngrams
@@ -41,7 +51,7 @@ highlight_text <- function(input, output, tc, sim, from_table) {
   }
   
   xdoc = tokenbrowser::wrap_documents(x, subset(x_meta, select = c('doc_id','headline','date','medium')))
-  ydoc = tokenbrowser::wrap_documents(y, subset(y_meta, select = c('doc_id','headline','date','medium')))
+  ydoc = tokenbrowser::wrap_documents(y, subset(y_meta, select = c('doc_id','headline','date','medium','similarity')))
   if (length(xdoc) > 0) xdoc = gsub('<doc_id>.*</doc_id>', '<doc_id></doc_id>', xdoc)
   if (length(ydoc) > 0) ydoc = gsub('<doc_id>.*</doc_id>', '<doc_id></doc_id>', ydoc)
   
