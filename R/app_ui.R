@@ -16,13 +16,32 @@ app_ui <- function() {
                        )),
       dashboardBody(
                       fluidRow(
-                        box(div(DT::dataTableOutput('from'), 
-                                style = "overflow-y: auto; height: 550px", 
-                                options = list(rownames= FALSE)), width=4, height=600),
-                        box(div(htmlOutput('txt_x'), 
-                                style = "overflow-y: scroll; height: 550px"), width=4, height=600),
-                        box(div(htmlOutput('txt_y'), 
-                                style = "overflow-y: scroll; height: 550px"), width=4, height=600)
+                        #box(div(DT::dataTableOutput('from'), 
+                        #        style = "overflow-y: auto; height: 550px", 
+                        #        options = list(rownames= FALSE)), width=4, height=600),
+                        box(width=4, height=600,
+                          div(dateRangeInput('daterange', "Persbericht publicatie", 
+                                           start = '2000-01-01', end = '2000-02-01', min = '2000-01-01', max = '2000-01-02')),
+                          div(radioButtons('persselect', label=NULL, choices = list("Choice 1" = 1), selected=1),
+                              style = "overflow-y: scroll; height: 450px")
+                          ),
+                        
+                        
+                        box(width=8, height=800,
+                          #shiny::fluidRow(height=200, 
+                          #  shiny::column(offset = 4, width=8, 'test')
+                          #                ),
+                          shiny::fluidRow(
+                            column(width=6, height=600,
+                                div(htmlOutput('txt_x'), 
+                                    style = "overflow-y: scroll; height: 550px")
+                                ),
+                            column(width=6, height=600, 
+                                div(htmlOutput('txt_y'), 
+                                    style = "overflow-y: scroll; height: 550px"), 
+                            )
+                          )
+                          )
                       ))
     )
   )

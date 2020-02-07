@@ -1,9 +1,9 @@
 #' @import data.table
 highlight_text <- function(input, output, tc, sim, from_table) {
   ## better approach: get x and y docs (can be multiple) then merge x tokens to y tokens (after preprocessing). use doc id to merge in case of multiple documents
-  i = input$from_rows_selected
+  x_doc = input$persselect
   
-  x_doc = from_table$doc_id[i]
+  #x_doc = from_table$doc_id[i]
   y_matches = sim[list(from=x_doc), , on='from', nomatch=0]
   y_sim = y_matches$weight
   y_docs = y_matches$to

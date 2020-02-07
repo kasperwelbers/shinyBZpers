@@ -16,8 +16,8 @@ doc_id {
 
 article {
     padding: 1em;
-    line-height: 2.0;
-    font-size: 10px;
+    line-height: 1.0;
+    font-size: 12px;
     display: block;
     overflow: hidden;
 }
@@ -32,7 +32,7 @@ article.disable-links {
     margin-top: 0px;
     padding-top: 0px;
     padding-bottom: 0px;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 #meta_table, td {
