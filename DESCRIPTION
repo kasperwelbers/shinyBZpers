@@ -18,7 +18,10 @@ Imports:
     corpustools,
     shinyjs,
     tokenbrowser (>= 0.1.2),
-    data.table
+    data.table,
+    RSQLite,
+    digest,
+    shinyBS
 RoxygenNote: 6.1.1
 URL: https://github.com/kasperwelbers/shinyBZpers
 BugReports: https://github.com/kasperwelbers/shinyBZpers/issues

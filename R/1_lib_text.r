@@ -1,15 +1,15 @@
 #' @import data.table
-highlight_text <- function(input, output, tc, sim, from_table) {
+highlight_text <- function(input, output, data, state) {
   ## better approach: get x and y docs (can be multiple) then merge x tokens to y tokens (after preprocessing). use doc id to merge in case of multiple documents
   x_doc = input$persselect
   
   #x_doc = from_table$doc_id[i]
-  y_matches = sim[list(from=x_doc), , on='from', nomatch=0]
+  y_matches = state$sim[list(from=x_doc), , on='from', nomatch=0]
   y_sim = y_matches$weight
   y_docs = y_matches$to
   
-  #y_docs = sort(y_docs)
-    
+  tc = get_tc(data$conn, doc_ids=c(x_doc,y_docs))
+  
   x = droplevels(tc$get(doc_id = x_doc))
   x_meta = droplevels(tc$get_meta(doc_id = x_doc))
 
@@ -21,8 +21,8 @@ highlight_text <- function(input, output, tc, sim, from_table) {
   y$doc_id = match(y$doc_id, unique(y$doc_id))
   y_meta$doc_id = 1:nrow(y_meta)
   
-  ngrams = input$ngrams
-  ngrams = if (is.na(ngrams)) 1 else ngrams
+  ngrams = if (input$method == 'verbatim') 3 else 1
+  #ngrams = if (is.na(ngrams)) 1 else ngrams
   
   x_feature = if (nrow(x) == 0) NULL else corpustools::preprocess_tokens(x$token, ngrams = ngrams, context = x$doc_id)
   y_feature = if (nrow(y) == 0) NULL else corpustools::preprocess_tokens(y$token, ngrams = ngrams, context = y$doc_id)
@@ -59,6 +59,10 @@ highlight_text <- function(input, output, tc, sim, from_table) {
   ## max 2 consequtive hard enter
   xdoc = gsub('(<br>) *(<br>)((<br>)| )+', '<br><br>', xdoc)
   ydoc = gsub('(<br>) *(<br>)((<br>)| )+', '<br><br>', ydoc)
+  
+  ## remove \s (used in udpipe)
+  xdoc = gsub('\\s', ' ', xdoc, fixed=T)
+  ydoc = gsub('\\s', ' ', ydoc, fixed=T)
   
   output$txt_x = shiny::renderText(xdoc)
   output$txt_y = shiny::renderText(ydoc)

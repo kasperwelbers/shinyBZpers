@@ -15,6 +15,8 @@ usethis::use_package( "shinydashboard" ) # To call each time you need a new pack
 usethis::use_package( "corpustools" )
 usethis::use_package( "tokenbrowser" ) 
 usethis::use_package( "data.table" ) 
+usethis::use_package( "RSQLite" ) 
+usethis::use_package( "shinyBS" ) 
 
 ## 2.3 Add tests
 
