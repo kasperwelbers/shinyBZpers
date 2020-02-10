@@ -24,15 +24,19 @@ bz_app <- function(bz_data, port=6171, ...) {
 }
 
 function() {
-  
+  bz_data$conn
   library(shinyBZpers)
   library(amcatr)
   conn = amcat.connect('https://amcat.nl')
   bz_data = create_bz_data(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=0.9)
   bz_app(bz_data, port = 6171)
   
-  
-  
+  class(bz_data$pers_index$date)
+  bz_data = create_bz_data(conn, project=29, pers_set=80229, nieuws_set=80227, deduplicate=0.9, db_path = '~/Desktop')
+  bz_app(bz_data, port = 6171)
+  bz_data$conn
+  bz_data$pers_index
+    
   ####
   library(amcatr)
   conn = amcat.connect('https://amcat.nl')

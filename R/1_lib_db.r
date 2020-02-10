@@ -54,7 +54,10 @@ add_comparison_features <- function(tc) {
 }
   
 tc_db <- function(d, db_file='shinyBZpers.db') {
+  
   conn <- RSQLite::dbConnect(RSQLite::SQLite(), db_file)
+  
+  
   
   to_do = doc_exists(conn, unique(d$id))
   if (any(to_do)) {

@@ -28,6 +28,8 @@ app_ui <- function() {
                         
                         
                         box(width=8, height=800,
+                          shiny::fluidRow(),
+                          
                           shiny::fluidRow(
                             column(width=6, height=800,
                                 div(class='textbox', 

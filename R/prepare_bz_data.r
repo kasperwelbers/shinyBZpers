@@ -36,7 +36,7 @@ prepare_data <- function(conn, ids, deduplicate) {
 #' @param deduplicate  Optionally, a similarity threshold for duplicates (only for articles in same medium within 24 hour diffence)
 #'
 #' @export
-create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=NA) {
+create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=NA, db_path=getwd()) {
   pers = amcatr::amcat.hits(conn, queries='*', project=project, sets=pers_set, col = c('doc_id','date','medium','headline','text'))  
   nieuws = amcatr::amcat.hits(conn, queries='*', project=project, sets=nieuws_set, col = c('doc_id','date','medium','headline','text'))  
   
@@ -46,7 +46,8 @@ create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457,
   d = d[order(d$id),]
   d$title = d$headline
   
-  db_conn = tc_db(d)
+  db_file = file.path(db_path, 'shinyBZpers.db')
+  db_conn = tc_db(d, db_file=db_file)
 
   prepare_data(db_conn, unique(d$id), deduplicate)
 }
