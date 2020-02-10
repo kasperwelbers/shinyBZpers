@@ -2,11 +2,6 @@
 app_server <- function(input, output, session) {
   data = golem::get_golem_options('bz_data')
   
-  state = reactiveValues()
-  state$sim = subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24)
-  state$from_table = make_table(input, data, subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
-  set_default_settings(session, data)
-  
   observeEvent(input$prepare, {
     state$sim = update_similarity_data(input, data)
     state$from_table = make_table(input, data, state$sim)
@@ -20,16 +15,20 @@ app_server <- function(input, output, session) {
   }, ignoreInit=T)
 
   observeEvent(input$daterange, {
-    
     update_persselect(session, input, state)
   })
 
   observeEvent(input$persselect,
                highlight_text(input, output, data, state))
 
+  
+  state = reactiveValues()
+  state$sim = subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24)
+  state$from_table = make_table(input, data, subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
+  set_default_settings(session, data)
 }
 
-
+#' @import shiny
 set_default_settings <- function(session, data) {
   mindate = min(as.Date(data$pers_index$date))
   maxdate = max(as.Date(data$pers_index$date))
@@ -38,10 +37,14 @@ set_default_settings <- function(session, data) {
   updateDateRangeInput(session, 'daterange', start= maxdate - 14, end=maxdate, min=mindate, max=maxdate)
 }
 
+#' @import shiny
 update_persselect <- function(session, input, state) {
   print('check')
+  print(state$from_table)
+  print(input$daterange)
   m = subset(state$from_table, date >= input$daterange[1] & date <= input$daterange[2])
   if (nrow(m) == 0) {
+    print('aha?')
     updateRadioButtons(session, 'persselect', choices = NULL, selected=NULL)
   } else {
     data.table::setorderv(m, 'date', -1)
