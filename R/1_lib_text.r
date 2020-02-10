@@ -8,7 +8,7 @@ highlight_text <- function(input, output, data, state) {
   y_sim = y_matches$weight
   y_docs = y_matches$to
   
-  tc = get_tc(data$conn, doc_ids=c(x_doc,y_docs))
+  tc = get_tc(data$db_file, doc_ids=c(x_doc,y_docs))
   
   x = droplevels(tc$get(doc_id = x_doc))
   x_meta = droplevels(tc$get_meta(doc_id = x_doc))

@@ -1,5 +1,5 @@
-prepare_data <- function(conn, ids, deduplicate) {
-  tc = get_tc(conn, ids)
+prepare_data <- function(ids, deduplicate, db_file) {
+  tc = get_tc(db_file, ids)
   tc$meta$date = as.POSIXct(tc$meta$date)
   
   if (!is.na(deduplicate)) {
@@ -23,7 +23,7 @@ prepare_data <- function(conn, ids, deduplicate) {
   
   pers_index = subset(tc$meta, from==1, select=c('date','headline','doc_id'))
   pers_index$date = as.Date(pers_index$date)
-  list(conn=conn, pers_index=pers_index, event=comp_event, verbatim=comp_verbatim)
+  list(db_file=db_file, pers_index=pers_index, event=comp_event, verbatim=comp_verbatim)
 }
 
 
@@ -47,8 +47,8 @@ create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457,
   d$title = d$headline
   
   db_file = file.path(db_path, 'shinyBZpers.db')
-  db_conn = tc_db(d, db_file=db_file)
+  tc_db(d, db_file=db_file)
 
-  prepare_data(db_conn, unique(d$id), deduplicate)
+  prepare_data(unique(d$id), deduplicate, db_file)
 }
 

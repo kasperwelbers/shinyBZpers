@@ -28,7 +28,9 @@ doc_exists <- function(conn, doc_ids) {
   !as.character(doc_ids) %in% as.character(in_db)
 }
 
-get_tc <- function(conn, doc_ids=NULL) {
+get_tc <- function(db_file, doc_ids=NULL) {
+  conn <- RSQLite::dbConnect(RSQLite::SQLite(), db_file)
+  
   if (is.null(doc_ids)) {
     tc = RSQLite::dbReadTable(conn, 'tc')
   } else {
@@ -40,6 +42,7 @@ get_tc <- function(conn, doc_ids=NULL) {
   meta = lapply(tc$meta_json, jsonlite::fromJSON)
   for (i in 1:length(meta)) meta[[i]]$doc_id = tc$doc_id[i] 
   
+  RSQLite::dbDisconnect(conn)
   corpustools::tokens_to_tcorpus(tokens = data.table::rbindlist(tokens, use.names=T), 
                                  meta = data.table::rbindlist(meta, use.names=T))
 }
@@ -54,10 +57,7 @@ add_comparison_features <- function(tc) {
 }
   
 tc_db <- function(d, db_file='shinyBZpers.db') {
-  
   conn <- RSQLite::dbConnect(RSQLite::SQLite(), db_file)
-  
-  
   
   to_do = doc_exists(conn, unique(d$id))
   if (any(to_do)) {
@@ -69,7 +69,8 @@ tc_db <- function(d, db_file='shinyBZpers.db') {
     tc = add_comparison_features(tc)
     tc_to_db(conn, tc)
   }
-  conn
+  RSQLite::dbDisconnect(conn)
+  return(NULL)
 }
 
 tc_to_json <- function(tc) {
