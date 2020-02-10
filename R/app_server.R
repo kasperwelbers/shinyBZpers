@@ -20,6 +20,7 @@ app_server <- function(input, output, session) {
   }, ignoreInit=T)
 
   observeEvent(input$daterange, {
+    
     update_persselect(session, input, state)
   })
 
@@ -32,10 +33,13 @@ app_server <- function(input, output, session) {
 set_default_settings <- function(session, data) {
   mindate = min(as.Date(data$pers_index$date))
   maxdate = max(as.Date(data$pers_index$date))
+  print(mindate)
+  print(maxdate)
   updateDateRangeInput(session, 'daterange', start= maxdate - 14, end=maxdate, min=mindate, max=maxdate)
 }
 
 update_persselect <- function(session, input, state) {
+  print('check')
   m = subset(state$from_table, date >= input$daterange[1] & date <= input$daterange[2])
   if (nrow(m) == 0) {
     updateRadioButtons(session, 'persselect', choices = NULL, selected=NULL)
