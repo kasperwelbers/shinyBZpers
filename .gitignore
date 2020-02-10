@@ -2,5 +2,5 @@
 .Rhistory
 .RData
 .Ruserdata
-*.db
+shinyBZpers.db
 udpipe_models/*
