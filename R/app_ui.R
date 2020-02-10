@@ -20,7 +20,7 @@ app_ui <- function() {
                       fluidRow(
                         box(width=4, height=800,
                           div(dateRangeInput('daterange', "Persbericht publicatie", 
-                                           start = '2000-01-01', end = '2000-02-01', min = '2000-01-01', max = '2000-01-02')),
+                                           start = '1900-01-01', end = '2100-01-01')),
                           
                           div(radioButtons('persselect', label=NULL, choiceNames='', choiceValues='', selected=character()),
                               style = "overflow-y: scroll; height: 700px")
