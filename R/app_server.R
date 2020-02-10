@@ -43,6 +43,8 @@ update_persselect <- function(session, input, state) {
     data.table::setorderv(m, 'date', -1)
     n = paste0('<b>', m$date, '</b>&emsp;', m$headline)
     n = ifelse(is.na(m$matches), paste0('<span style="color:grey">',n,'<span>'), paste0(n, '(', m$matches, ')'))
+    print(m$doc_id)
+    print(n)
     updateRadioButtons(session, 'persselect', choiceNames = lapply(n, HTML), choiceValues = m$doc_id, selected=m$doc_id[1])
   }
 }
@@ -58,7 +60,6 @@ make_table <- function(input, data, sim) {
   } else {
     d$matches = 0
   }
-  print(d)
   d
 }
 
