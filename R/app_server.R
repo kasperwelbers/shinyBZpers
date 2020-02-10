@@ -1,6 +1,11 @@
 #' @import shiny
 app_server <- function(input, output, session) {
   data = golem::get_golem_options('bz_data')
+
+  state = reactiveValues()
+  state$sim = subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24)
+  state$from_table = make_table(input, data, subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
+  set_default_settings(session, data)
   
   observeEvent(input$prepare, {
     state$sim = update_similarity_data(input, data)
@@ -22,10 +27,6 @@ app_server <- function(input, output, session) {
                highlight_text(input, output, data, state))
 
   
-  state = reactiveValues()
-  state$sim = subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24)
-  state$from_table = make_table(input, data, subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
-  set_default_settings(session, data)
 }
 
 #' @import shiny

@@ -1,5 +1,6 @@
 #' @import data.table
 highlight_text <- function(input, output, data, state) {
+  print('highlight')
   ## better approach: get x and y docs (can be multiple) then merge x tokens to y tokens (after preprocessing). use doc id to merge in case of multiple documents
   x_doc = input$persselect
   
