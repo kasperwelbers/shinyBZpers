@@ -5,6 +5,7 @@ app_server <- function(input, output, session) {
   state = reactiveValues()
   state$sim = subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24)
   state$from_table = make_table(input, data, subset(data$verbatim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
+  print(state$from_table)
   set_default_settings(session, data)
   
   observeEvent(input$prepare, {
