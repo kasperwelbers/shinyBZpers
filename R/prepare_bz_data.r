@@ -6,26 +6,27 @@ prepare_data <- function(ids, deduplicate, db_file) {
     message("\nDeduplicating")
     tc$deduplicate('token', meta_cols = 'medium', keep='last', hour_window=24, date_col = 'date', similarity = deduplicate)
   }
-  
-  message('\nCompute event level similarity')
-  #event_idf = tc$tokens[, list(event_idf = length(unique(doc_id))), by=c('event_feature')]
-  #event_idf$event_idf = log2(tc$n_meta / event_idf$event_idf)
-  comp_event = corpustools::compare_documents(tc, from_subset = from == 1, to_subset = from == 0, date_col = 'date', feature = 'event_feature', min_similarity=0.1, measure='overlap_pct', hour_window = c(-3*24, 7*24), return_igraph=F)
-  comp_event = comp_event$d
-  data.table::setindexv(comp_event, cols='from')
 
-  message('\nCompute verbatim level similarity')
-  #verbatim_idf = tc$tokens[, list(verbatim_idf = length(unique(doc_id))), by=c('verbatim_feature')]
-  #verbatim_idf$verbatim_idf = log2(tc$n_meta / verbatim_idf$verbatim_idf)
-  comp_verbatim = corpustools::compare_documents(tc, from_subset = from == 1, to_subset = from == 0, date_col = 'date', feature = 'verbatim_feature', min_similarity = 0.1, measure = 'overlap_pct', hour_window = c(-3*24, 7*24), return_igraph=F)
-  comp_verbatim = comp_verbatim$d
-  data.table::setindexv(comp_verbatim, cols='from')
+  sim = corpustools::compare_documents(tc, from_subset = from == 1, to_subset = from == 0, date_col = 'date', feature = 'event_feature', min_similarity = 0.1, measure = 'cosine', hour_window = c(-3*24, 7*24), return_igraph=F)
+  sim = sim$d
+  
+  data.table::setindexv(sim, cols='from')
+  data.table::setindexv(sim, cols='to')
   
   pers_index = subset(tc$meta, from==1, select=c('date','headline','doc_id'))
+  data.table::setkeyv(pers_index, 'doc_id')
+  data.table::setindexv(pers_index, cols=c('date'))
   pers_index$date = as.Date(pers_index$date)
-  list(db_file=db_file, pers_index=pers_index, event=comp_event, verbatim=comp_verbatim)
+  
+  media_index = subset(tc$meta, from==0, select=c('date','headline','medium','doc_id'))
+  data.table::setkeyv(media_index, 'doc_id')
+  data.table::setindexv(media_index, cols=c('date','medium'))
+  media_index$date = as.Date(media_index$date)
+  
+  sim = merge(sim, media_index[,c('doc_id','medium')], by.x='to', by.y='doc_id', all.x=T)
+  
+  list(db_file=db_file, pers_index=pers_index, media_index=media_index, sim=sim)
 }
-
 
 #' Run the Shiny Application
 #'

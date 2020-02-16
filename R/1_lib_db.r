@@ -43,19 +43,19 @@ get_tc <- function(db_file, doc_ids=NULL) {
   for (i in 1:length(meta)) meta[[i]]$doc_id = tc$doc_id[i] 
   
   RSQLite::dbDisconnect(conn)
-  corpustools::tokens_to_tcorpus(tokens = data.table::rbindlist(tokens, use.names=T), 
-                                 meta = data.table::rbindlist(meta, use.names=T))
+  corpustools::tokens_to_tcorpus(tokens = data.table::rbindlist(tokens, use.names=T, fill=T), 
+                                 meta = data.table::rbindlist(meta, use.names=T, fill=T))
 }
 
 
 add_comparison_features <- function(tc) {
   tc$preprocess('lemma', new_column = 'event_feature', lowercase = F, as_ascii = T)
   tc$feature_subset('event_feature', subset = POS %in% c('PROPN','NOUN'))
-  tc$preprocess('lemma', new_column = 'verbatim_feature', lowercase = T, as_ascii = T, ngrams=3)
-  tc$tokens$verbatim_feature = as.numeric(tc$tokens$verbatim_feature)
+  #tc$preprocess('lemma', new_column = 'verbatim_feature', lowercase = T, as_ascii = T, ngrams=3)
+  #tc$tokens$verbatim_feature = as.numeric(tc$tokens$verbatim_feature)
   tc
 }
-  
+
 tc_db <- function(d, db_file='shinyBZpers.db') {
   conn <- RSQLite::dbConnect(RSQLite::SQLite(), db_file)
   

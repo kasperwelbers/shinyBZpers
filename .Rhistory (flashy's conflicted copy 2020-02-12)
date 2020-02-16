@@ -1,0 +1,18 @@
+golem::add_css_file( "custom" )
+options(golem.app.prod = FALSE) # TRUE = production mode, FALSE = development mode
+golem::detach_all_attached()
+golem::document_and_reload()
+?golem::document_and_reload()
+golem::add_css_file
+golem::document_and_reload()
+?golem::document_and_reload()
+library(shinyBZpers)
+library(shinyBZpers)
+conn=amcat.connect("https://amcat.nl")
+devtools::install_github('amcat/amcat-r')
+install.packages('devtools')
+devtools::install_github('amcat/amcat-r')
+library(amcatr)
+conn=amcat.connect("https://amcat.nl")
+install.packages(c('dplyr'))
+devtools::install_github('kasperwelbers/corpustools')

@@ -21,8 +21,10 @@ Imports:
     data.table,
     RSQLite,
     digest,
-    shinyBS
-RoxygenNote: 6.1.1
+    shinyBS,
+    dygraphs,
+    shinyWidgets
+RoxygenNote: 7.0.2
 URL: https://github.com/kasperwelbers/shinyBZpers
 BugReports: https://github.com/kasperwelbers/shinyBZpers/issues
 Suggests: 

@@ -17,6 +17,8 @@ usethis::use_package( "tokenbrowser" )
 usethis::use_package( "data.table" ) 
 usethis::use_package( "RSQLite" ) 
 usethis::use_package( "shinyBS" ) 
+usethis::use_package( "dygraphs" ) 
+usethis::use_package( "shinyWidgets" ) 
 
 ## 2.3 Add tests
 
