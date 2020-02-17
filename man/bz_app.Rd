@@ -4,7 +4,7 @@
 \alias{bz_app}
 \title{Run the Shiny Application}
 \usage{
-bz_app(bz_data, ...)
+bz_app(bz_data, port = 6171, ...)
 }
 \description{
 Run the Shiny Application

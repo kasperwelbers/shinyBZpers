@@ -31,6 +31,8 @@ function() {
   bz_app(bz_data, port = 6171)
   
   ##
+  devtools::install_github('kasperwelbers/shinyBZpers')
+  
   library(shinyBZpers)
   library(amcatr)
   conn = amcat.connect('http://bzk.nieuwsmonitor.org')

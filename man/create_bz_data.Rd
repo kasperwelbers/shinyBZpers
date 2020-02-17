@@ -4,8 +4,18 @@
 \alias{create_bz_data}
 \title{Run the Shiny Application}
 \usage{
-create_bz_data(conn, project = 1916, pers_set = 79431,
-  nieuws_set = 79457, ...)
+create_bz_data(
+  conn,
+  project = 1916,
+  pers_set = 79431,
+  nieuws_set = 79457,
+  deduplicate = NA,
+  pers_headline_col = "headline",
+  pers_medium_col = "medium",
+  nieuws_headline_col = "headline",
+  nieuws_medium_col = "medium",
+  db_path = getwd()
+)
 }
 \arguments{
 \item{conn}{An amcatr connection}
@@ -16,7 +26,15 @@ create_bz_data(conn, project = 1916, pers_set = 79431,
 
 \item{nieuws_set}{AmCAT articleset with BZ news articles}
 
-\item{...}{}
+\item{deduplicate}{Optionally, a similarity threshold for duplicates (only for articles in same medium within 24 hour diffence)}
+
+\item{pers_headline_col}{The name of the headline column in the pers articleset}
+
+\item{pers_medium_col}{The name of the medium column in the pers articleset}
+
+\item{nieuws_headline_col}{The name of the headline column in the nieuws articleset}
+
+\item{nieuws_medium_col}{The name of the medium column in the nieuws articleset}
 }
 \description{
 Run the Shiny Application

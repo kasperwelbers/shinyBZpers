@@ -169,7 +169,7 @@ create_graph <- function(input, data, graph_data, datewindow=NULL) {
         dygraphs::dyLegend(labelsSeparateLines = T) %>%
         dygraphs::dyUnzoom() %>%
         dygraphs::dyStackedBarChart() %>%
-        dygraphs::dyOptions(useDataTimezone = F, colors=c('lightblue','blue'))
+        dygraphs::dyOptions(useDataTimezone = T, colors=c('lightblue','blue'))
     })
   } else {
     main = 'Nieuwsberichten met sporen van persbericht'
@@ -191,7 +191,7 @@ create_graph <- function(input, data, graph_data, datewindow=NULL) {
         dygraphs::dyUnzoom() %>%
         dygraphs::dyLegend(show='onmouseover', showZeroValues = F, labelsSeparateLines = T) %>%
         dygraphs::dyStackedBarChart() %>%
-        dygraphs::dyOptions(useDataTimezone = F, colors=col)
+        dygraphs::dyOptions(useDataTimezone = T, colors=col)
     })
   }
 }
@@ -243,10 +243,7 @@ update_persselect <- function(session, input, output, state, daterange) {
   }
   if (!is.null(daterange)) {
     daterange = as.Date(daterange)
-    print(1)
-    print(daterange)
     date_seq = seq.Date(daterange[1], daterange[2], by = 1)
-    print(2)
     date_seq = rev(date_seq)   ## lastest date first
     m = m[list(date=date_seq),on='date', nomatch=0]
   }
