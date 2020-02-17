@@ -48,7 +48,7 @@ app_server <- function(input, output, session) {
   }, ignoreInit=T)
 
   daterange <- debounce(reactive({
-    input$dategraph_date_window
+    dr = input$dategraph_date_window
   }), 500)
   
   observeEvent(daterange(), {
@@ -174,8 +174,7 @@ create_graph <- function(input, data, graph_data, datewindow=NULL) {
   } else {
     main = 'Nieuwsberichten met sporen van persbericht'
     if (length(input$media) > 0) {
-      print(input$media)
-      print(colnames(graph_data))
+      
       d = subset(graph_data, select=c('agg_date', input$media))
     } else
       d = graph_data
@@ -243,6 +242,8 @@ update_persselect <- function(session, input, output, state, daterange) {
   }
   if (!is.null(daterange)) {
     daterange = as.Date(daterange)
+    if (input$aggregate == 'week') daterange[2] = daterange[2] + 6
+    if (input$aggregate == 'month') daterange[2] = month_ceiling(daterange[2])
     date_seq = seq.Date(daterange[1], daterange[2], by = 1)
     date_seq = rev(date_seq)   ## lastest date first
     m = m[list(date=date_seq),on='date', nomatch=0]
@@ -257,6 +258,19 @@ update_persselect <- function(session, input, output, state, daterange) {
   }
 
 }
+
+month_ceiling <- function(x) {
+  y = data.table::year(x)
+  m = data.table::month(x)
+  if (m == 12) {
+    y = y + 1
+    m = 1
+  } else 
+    m = m + 1
+  next_month = as.Date(sprintf('%s-%s-01', y, m))
+  next_month - 1
+}
+
 
 make_from_table <- function(input, data, sim) {
   d = data$pers_index
@@ -291,7 +305,6 @@ make_to_table <- function(input, data, sim) {
   data.table::setorderv(d, 'date', -1)
   d
 }
-
 
 update_similarity_data <- function(input, data) {
   #sim = if (input$method == 'verbatim') data$verbatim else data$event
