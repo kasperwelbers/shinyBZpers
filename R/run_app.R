@@ -30,6 +30,14 @@ function() {
   bz_data = create_bz_data(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=0.9)
   bz_app(bz_data, port = 6171)
   
+  ##
+  library(shinyBZpers)
+  library(amcatr)
+  conn = amcat.connect('http://bzk.nieuwsmonitor.org')
+  bz_data = create_bz_data(conn, project=3, pers_set=4564, nieuws_set=4585, deduplicate=0.9, pers_medium_col='publisher', pers_headline_col='title', nieuws_medium_col='medium', nieuws_headline_col='title')
+  bz_app(bz_data, port = 6171)
+  
+  ##
   bz_data = create_bz_data(conn, project=29, pers_set=80229, nieuws_set=80227, deduplicate=0.9)
   bz_app(bz_data, port = 6171)
   bz_data$conn

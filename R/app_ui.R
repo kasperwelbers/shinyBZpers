@@ -28,7 +28,8 @@ app_ui <- function() {
                             fluidRow(
                               column(width=2, selectInput('pers_of_nieuws', width='100%', label = 'Bekijk pers- of nieuwsberichten', choices=list('Persberichten'='pers', 'Nieuwsberichten'='nieuws'), selected = 'pers')),
                               column(width=4, shinyWidgets::pickerInput('media', width='100%', multiple=T, label = 'Filter op medium', choices=list(), options = list(`actions-box` = TRUE))),
-                              column(width=2, selectInput('aggregate', label = 'Datum per', width = '100%', choices=list('Per dag'='day', 'Per week'='week', 'Per maand'='month'), selected = 'week'))
+                              column(width=2, selectInput('aggregate', label = 'Datum per', width = '100%', choices=list('Per dag'='day', 'Per week'='week', 'Per maand'='month'), selected = 'week')),
+                              column(width=2, selectInput('dateselect', label = 'Datum selectie', width = '100%', choices=list('Afgelopen week'='week', 'Afgelopen maand'='maand', 'Afgelopen jaar'='jaar', 'Hele periode'='alles', 'Vrije selectie'='vrij'), selected = 'alles'))
                             ),
                             div(align='center',
                                 dygraphs::dygraphOutput("dategraph", height='420px', width = '90%')

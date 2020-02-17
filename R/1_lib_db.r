@@ -73,6 +73,7 @@ tc_db <- function(d, db_file='shinyBZpers.db') {
   return(NULL)
 }
 
+
 tc_to_json <- function(tc) {
   .SD = NULL
   tokens = tc$tokens[,list(tokens_json=jsonlite::toJSON(as.data.frame(.SD))), by='doc_id']

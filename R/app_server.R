@@ -49,10 +49,17 @@ app_server <- function(input, output, session) {
 
   daterange <- debounce(reactive({
     input$dategraph_date_window
-  }), 700)
+  }), 500)
   
   observeEvent(daterange(), {
+    p = is_datepreset(state, as.Date(daterange()))
+    updateSelectInput(session, 'dateselect', selected=p)
     update_persselect(session, input, output, state, daterange())
+  })
+  
+  observeEvent(input$dateselect, {
+    if (!input$dateselect == 'vrij')
+      output$dategraph = create_graph(input, data, state$time_graph_data)
   })
   
   #observeEvent(daterange(), {
@@ -96,6 +103,7 @@ create_graph_data <- function(session, input, output, data, state) {
     #else
     #  agg = state$from_table[,list(`Aantal verstuurd` = length(has_match)), by=c('agg_date')]
     agg = state$from_table[,list(`Niet overgenomen` = sum(!has_match), `Overgenomen` = sum(has_match)), by=c('agg_date')]
+    data.table::setorderv(agg, cols = 'agg_date')
     
     #print(state$from_table)
     #agg = state$from_table[, lapply(data.table::.SD, function(x) sum(x>0)), by='agg_date']
@@ -110,36 +118,65 @@ create_graph_data <- function(session, input, output, data, state) {
     agg = state$to_table[,list(N = length(has_match), matches = sum(has_match)), by=c('agg_date','medium')]
     
     #if (input$only_matches)
-      agg = data.table::dcast(agg, agg_date ~ medium, value.var='matches')
+    agg = data.table::dcast(agg, agg_date ~ medium, value.var='matches')
+    data.table::setorderv(agg, 'agg_date')
     #else 
     #  agg = data.table::dcast(agg, agg_date ~ medium, value.var='N')
-    agg = data.table::as.xts.data.table(agg)
+    #agg = data.table::as.xts.data.table(agg)
     agg[is.na(agg)] = 0
+    
   }
   
   state$time_graph_data = agg
 }
 
+is_datepreset <- function(state, datewindow) {
+  mindate = as.Date(state$time_graph_data$agg_date[1])
+  enddate = as.Date(state$time_graph_data$agg_date[nrow(state$time_graph_data)])
+
+  if (datewindow[2] == enddate) {
+    if (datewindow[1] == enddate - 7) return('week')
+    if (datewindow[1] == enddate - 30) return('maand')
+    if (datewindow[1] == enddate - 365) return('jaar')
+    if (datewindow[1] == mindate) return('alles')
+  }
+  return('vrij')
+}
 
 create_graph <- function(input, data, graph_data, datewindow=NULL) {
+  if (input$dateselect != 'vrij') {
+    mindate = as.Date(graph_data$agg_date[1])
+    enddate = as.Date(graph_data$agg_date[nrow(graph_data)])
+    if (input$dateselect == 'week') startdate = enddate - 7
+    if (input$dateselect == 'maand') startdate = enddate - 30
+    if (input$dateselect == 'jaar') startdate = enddate - 365
+    if (input$dateselect == 'alles') startdate = mindate
+    if (startdate < mindate) startdate = mindate
+    datewindow = c(startdate, enddate)
+  } else {
+    if (!is.null(input$dategraph_date_window)) datewindow = as.Date(input$dategraph_date_window)
+  }
+  
   if (input$pers_of_nieuws == 'pers') {
     main = 'Persberichten'
     d = graph_data
     
     dygraphs::renderDygraph({
       dygraphs::dygraph(d, main = "Persberichten") %>%
-        dygraphs::dyRangeSelector(retainDateWindow=T, height=30, dateWindow = datewindow,  
+        dygraphs::dyRangeSelector(retainDateWindow=F, height=30, dateWindow = datewindow,  
                                   fillColor = " #A7B1C4", strokeColor = "#808FAB", keepMouseZoom = T) %>%
         dygraphs::dyStackedBarChart() %>%
         dygraphs::dyLegend(labelsSeparateLines = T) %>%
         dygraphs::dyUnzoom() %>%
         dygraphs::dyStackedBarChart() %>%
-        dygraphs::dyOptions(useDataTimezone = TRUE, colors=c('lightblue','blue'))
+        dygraphs::dyOptions(useDataTimezone = F, colors=c('lightblue','blue'))
     })
   } else {
     main = 'Nieuwsberichten met sporen van persbericht'
     if (length(input$media) > 0) {
-      d = subset(graph_data, select=input$media)
+      print(input$media)
+      print(colnames(graph_data))
+      d = subset(graph_data, select=c('agg_date', input$media))
     } else
       d = graph_data
     
@@ -148,13 +185,13 @@ create_graph <- function(input, data, graph_data, datewindow=NULL) {
     
     dygraphs::renderDygraph({
       dygraphs::dygraph(d, main = "Nieuwsberichten met sporen van persberichten") %>%
-        dygraphs::dyRangeSelector(retainDateWindow=T, height=30, dateWindow = datewindow,
+        dygraphs::dyRangeSelector(retainDateWindow=F, height=30, dateWindow = datewindow,
                                   fillColor = " #A7B1C4", strokeColor = "#808FAB", keepMouseZoom = T) %>%
         dygraphs::dyStackedBarChart() %>%
         dygraphs::dyUnzoom() %>%
         dygraphs::dyLegend(show='onmouseover', showZeroValues = F, labelsSeparateLines = T) %>%
         dygraphs::dyStackedBarChart() %>%
-        dygraphs::dyOptions(useDataTimezone = TRUE, colors=col)
+        dygraphs::dyOptions(useDataTimezone = F, colors=col)
     })
   }
 }
@@ -186,7 +223,6 @@ create_media_colors <- function(data) {
 
 #' @import shiny
 update_persselect <- function(session, input, output, state, daterange) {
-  print('go')
   output$txt_x = shiny::renderText('')
   output$txt_y = shiny::renderText('')
   
@@ -207,7 +243,10 @@ update_persselect <- function(session, input, output, state, daterange) {
   }
   if (!is.null(daterange)) {
     daterange = as.Date(daterange)
+    print(1)
+    print(daterange)
     date_seq = seq.Date(daterange[1], daterange[2], by = 1)
+    print(2)
     date_seq = rev(date_seq)   ## lastest date first
     m = m[list(date=date_seq),on='date', nomatch=0]
   }
