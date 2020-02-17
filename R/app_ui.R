@@ -19,16 +19,20 @@ app_ui <- function() {
       dashboardBody(
 
                       fluidRow(
-                        box(width=4, height=600, 
-                            radioButtons('pers_of_nieuws', label = '', inline = T, choices=list('Persberichten'='pers', 'Nieuwsberichten'='nieuws'), selected = 'pers'),
-                            dateRangeInput('daterange', 'Selecteer periode',  start = '1900-01-01', end = '2100-01-01'),
-                            shinyWidgets::multiInput('media', options = list(enable_search=F), label = 'Selecteer bronnen', choices=list())
+                        #box(width=4, height=600, 
+                        #    radioButtons('pers_of_nieuws', label = '', inline = T, choices=list('Persberichten'='pers', 'Nieuwsberichten'='nieuws'), selected = 'pers'),
+                        #    dateRangeInput('daterange', 'Selecteer periode',  start = '1900-01-01', end = '2100-01-01'),
+                        #    shinyWidgets::pickerInput('media', multiple=T, label = 'Selecteer bronnen', choices=list(), options = list(`actions-box` = TRUE))
+                        #    ),
+                        box(width=12, height=600,
+                            fluidRow(
+                              column(width=2, selectInput('pers_of_nieuws', width='100%', label = 'Bekijk pers- of nieuwsberichten', choices=list('Persberichten'='pers', 'Nieuwsberichten'='nieuws'), selected = 'pers')),
+                              column(width=4, shinyWidgets::pickerInput('media', width='100%', multiple=T, label = 'Filter op medium', choices=list(), options = list(`actions-box` = TRUE))),
+                              column(width=2, selectInput('aggregate', label = 'Datum per', width = '100%', choices=list('Per dag'='day', 'Per week'='week', 'Per maand'='month'), selected = 'week'))
                             ),
-                        box(width=8, height=600,
                             div(align='center',
-                                dygraphs::dygraphOutput("dategraph", height='500px', width = '90%'),
-                                selectInput('aggregate', label = '', width = '30%', choices=list('Per dag'='day', 'Per week'='week', 'Per maand'='month'), selected = 'week')),
-                            
+                                dygraphs::dygraphOutput("dategraph", height='420px', width = '90%')
+                            )
                         )                           
                       ),
                       
@@ -38,7 +42,7 @@ app_ui <- function() {
                           br(),
                           
                           div(align='center', 
-                              actionButton('create_articlelist', label = 'Bekijk artikelen'),
+                              #actionButton('create_articlelist', label = 'Bekijk artikelen'),
                               #actionLink('use_graph_daterange', label='Gebruik periode uit grafiek'),
                               checkboxInput('only_matches', 'Minstens 1 match', value=TRUE)
                           ),
@@ -77,7 +81,7 @@ prepare_data_ui <- function() {
     #            list('Soortgelijk onderwerp' = 'event','Letterlijke kopie' = 'verbatim'), 
     #            multiple=F, selected='verbatim'),
     #br(),
-    sliderInput('min_similarity', label = 'similarity threshold', value=0.1, min=0.1, max=1, step=0.01),
+    sliderInput('min_similarity', label = 'similarity threshold', value=0.2, min=0.1, max=1, step=0.01),
     br(),
     sliderInput('hour_window', label='Time window in hours', value=c(0, 7*24), min=-3*24, max=7*24, step=1)
     #br(),
@@ -88,7 +92,7 @@ prepare_data_ui <- function() {
 prepare_data_button <- function(){
   list(
     HTML('&nbsp;&nbsp;&nbsp;&nbsp;'),
-    actionButton('prepare', '', icon = icon('circle'), width=120, style="color: #fff; background-color: #337ab7; border-color: #2e6da4")
+    div(align='center', actionButton('prepare', '', icon = icon('circle'), width=120, style="color: #fff; background-color: #337ab7; border-color: #2e6da4"))
   )
 }
 

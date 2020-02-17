@@ -8,8 +8,17 @@ app_server <- function(input, output, session) {
   state$from_table = make_from_table(input, data, subset(data$sim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
   state$to_table = make_to_table(input, data, subset(data$sim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
   
+  data$media_colors = create_media_colors(data)
   set_default_settings(session, output, data)
   
+  observeEvent(input$prepare, {
+    state$sim = update_similarity_data(input, data)
+    state$from_table = make_from_table(input, data, state$sim)
+    state$to_table = make_to_table(input, data, state$sim)
+    #update_persselect(session, input, output, state, as.Date(daterange()))
+    highlight_text(input, output, data, state)
+    updateActionButton(session, 'prepare', '', icon = icon('circle'))
+  })
 
   observeEvent({state$sim; input$pers_of_nieuws; input$aggregate; input$only_matches}, {
     if (input$pers_of_nieuws == 'pers') 
@@ -17,9 +26,9 @@ app_server <- function(input, output, session) {
     else
       output$articlelist_header = renderText('Selecteer nieuwsbericht')
     create_graph_data(session, input, output, data, state)
-    output$dategraph = create_graph(input, state$time_graph_data)
-    #update_persselect(session, input, output, state)
-    empty_persselect(output)
+    output$dategraph = create_graph(input, data, state$time_graph_data)
+    #update_persselect(session, input, output, state, daterange())
+    #empty_persselect(output)
   })
   
   observeEvent(input$media, ignoreNULL = F, {
@@ -27,44 +36,41 @@ app_server <- function(input, output, session) {
       ## pers data requires update, because it can't just select columns based on media filter
       state$graph_data = create_graph_data(session, input, output, data, state)
     }
-    output$dategraph = create_graph(input, state$time_graph_data)
-    empty_persselect(output)
+    output$dategraph = create_graph(input, data, state$time_graph_data)
+    update_persselect(session, input, output, state, daterange())
+    #empty_persselect(output)
   })
   
-  observeEvent(input$prepare, {
-    state$sim = update_similarity_data(input, data)
-    state$from_table = make_from_table(input, data, state$sim)
-    state$to_table = make_to_table(input, data, state$sim)
-    update_persselect(session, input, output, state)
-    highlight_text(input, output, data, state)
-    updateActionButton(session, 'prepare', '', icon = icon('circle'))
-  })
+  
   
   observeEvent({input$min_similarity; input$hour_window}, {
     updateActionButton(session = session, inputId = 'prepare', label = 'Bevestig', icon = icon('play-circle'))
   }, ignoreInit=T)
 
   daterange <- debounce(reactive({
-    daterange = input$dategraph_date_window
-  }), 500)
-  
+    input$dategraph_date_window
+  }), 700)
   
   observeEvent(daterange(), {
-    if (!is.null(daterange())) {
-      daterange = as.Date(input$dategraph_date_window)
-      updateDateRangeInput(session, 'daterange', 
-                           start=  max(c(min(data$pers_index$date), daterange[1])), 
-                           end= min(c(max(data$pers_index$date), daterange[2])))
-    }
+    update_persselect(session, input, output, state, daterange())
   })
   
-  observeEvent({input$create_articlelist}, ignoreInit = T, {
-    update_persselect(session, input, output, state)
-  })
+  #observeEvent(daterange(), {
+  #  if (!is.null(daterange())) {
+  #    daterange = as.Date(input$dategraph_date_window)
+  #    updateDateRangeInput(session, 'daterange', 
+  #                         start=  max(c(min(data$pers_index$date), daterange[1])), 
+  #                         end= min(c(max(data$pers_index$date), daterange[2])))
+  #  }
+  #})
   
-  observeEvent({input$daterange}, ignoreInit = T, {
-    output$dategraph = create_graph(input, state$time_graph_data, input$daterange)
-  })
+  #observeEvent({input$create_articlelist}, ignoreInit = T, {
+  #  update_persselect(session, input, output, state)
+  #})
+  
+  #observeEvent({input$daterange}, ignoreInit = T, {
+  #  output$dategraph = create_graph(input, data, state$time_graph_data, input$daterange)
+  #})
   
 
   observeEvent(input$articlelist_rows_selected,
@@ -89,7 +95,7 @@ create_graph_data <- function(session, input, output, data, state) {
     #  agg = state$from_table[,list(`Aantal overgenomen` = sum(has_match)), by=c('agg_date')]
     #else
     #  agg = state$from_table[,list(`Aantal verstuurd` = length(has_match)), by=c('agg_date')]
-    agg = state$from_table[,list(`Overgenomen` = sum(has_match), `Niet overgenomen` = sum(!has_match)), by=c('agg_date')]
+    agg = state$from_table[,list(`Niet overgenomen` = sum(!has_match), `Overgenomen` = sum(has_match)), by=c('agg_date')]
     
     #print(state$from_table)
     #agg = state$from_table[, lapply(data.table::.SD, function(x) sum(x>0)), by='agg_date']
@@ -114,7 +120,8 @@ create_graph_data <- function(session, input, output, data, state) {
   state$time_graph_data = agg
 }
 
-create_graph <- function(input, graph_data, datewindow=NULL) {
+
+create_graph <- function(input, data, graph_data, datewindow=NULL) {
   if (input$pers_of_nieuws == 'pers') {
     main = 'Persberichten'
     d = graph_data
@@ -124,9 +131,10 @@ create_graph <- function(input, graph_data, datewindow=NULL) {
         dygraphs::dyRangeSelector(retainDateWindow=T, height=30, dateWindow = datewindow,  
                                   fillColor = " #A7B1C4", strokeColor = "#808FAB", keepMouseZoom = T) %>%
         dygraphs::dyStackedBarChart() %>%
+        dygraphs::dyLegend(labelsSeparateLines = T) %>%
         dygraphs::dyUnzoom() %>%
         dygraphs::dyStackedBarChart() %>%
-        dygraphs::dyOptions(useDataTimezone = TRUE)
+        dygraphs::dyOptions(useDataTimezone = TRUE, colors=c('lightblue','blue'))
     })
   } else {
     main = 'Nieuwsberichten met sporen van persbericht'
@@ -135,15 +143,18 @@ create_graph <- function(input, graph_data, datewindow=NULL) {
     } else
       d = graph_data
     
+    col = if (length(input$media) > 0) as.character(unlist(data$media_colors[input$media])) else NULL
+    col = substr(col, start = 0, stop = 7)
+    
     dygraphs::renderDygraph({
-      dygraphs::dygraph(d, main = "Persberichten") %>%
+      dygraphs::dygraph(d, main = "Nieuwsberichten met sporen van persberichten") %>%
         dygraphs::dyRangeSelector(retainDateWindow=T, height=30, dateWindow = datewindow,
                                   fillColor = " #A7B1C4", strokeColor = "#808FAB", keepMouseZoom = T) %>%
         dygraphs::dyStackedBarChart() %>%
         dygraphs::dyUnzoom() %>%
         dygraphs::dyLegend(show='onmouseover', showZeroValues = F, labelsSeparateLines = T) %>%
         dygraphs::dyStackedBarChart() %>%
-        dygraphs::dyOptions(useDataTimezone = TRUE)
+        dygraphs::dyOptions(useDataTimezone = TRUE, colors=col)
     })
   }
 }
@@ -163,11 +174,19 @@ set_default_settings <- function(session, output, data) {
   updateDateRangeInput(session, 'daterange', start= mindate, end=maxdate)
   
   media = sort(unique(data$media_index$medium))
-  shinyWidgets::updateMultiInput(session, inputId = 'media', choices = as.list(media))
+  shinyWidgets::updatePickerInput(session, inputId = 'media', choices = as.list(media))
+}
+
+create_media_colors <- function(data) {
+  media = sort(unique(data$media_index$medium))
+  colors = as.list(rainbow(length(media)))
+  names(colors) = media
+  colors
 }
 
 #' @import shiny
 update_persselect <- function(session, input, output, state, daterange) {
+  print('go')
   output$txt_x = shiny::renderText('')
   output$txt_y = shiny::renderText('')
   
@@ -186,10 +205,12 @@ update_persselect <- function(session, input, output, state, daterange) {
     }
     cols = c('date','medium','headline')  
   }
-  daterange =input$daterange
-  date_seq = seq.Date(daterange[1], daterange[2], by = 1)
-  date_seq = rev(date_seq)   ## lastest date first
-  m = m[list(date=date_seq),on='date', nomatch=0]
+  if (!is.null(daterange)) {
+    daterange = as.Date(daterange)
+    date_seq = seq.Date(daterange[1], daterange[2], by = 1)
+    date_seq = rev(date_seq)   ## lastest date first
+    m = m[list(date=date_seq),on='date', nomatch=0]
+  }
   
   if (nrow(m) == 0) {
     output$articlelist = DT::renderDataTable(NULL)
