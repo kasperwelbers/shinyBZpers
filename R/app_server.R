@@ -3,6 +3,16 @@
 app_server <- function(input, output, session) {
   data = golem::get_golem_options('bz_data')
   
+  observe({
+    if (golem::get_golem_options('token_auth')) {
+      tokens = readLines('.valid_tokens')
+      query <- parseQueryString(session$clientData$url_search)
+      if (!query$token %in% tokens) {
+        stop("Close session due to invalid token")
+      }
+    }
+  })
+  
   state = reactiveValues(doc_ids=c())
   state$sim = data$sim
   state$from_table = make_from_table(input, data, subset(data$sim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))

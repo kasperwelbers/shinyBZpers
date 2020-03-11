@@ -4,7 +4,15 @@
 \alias{bz_app}
 \title{Run the Shiny Application}
 \usage{
-bz_app(bz_data, port = 6171, ...)
+bz_app(bz_data, token_auth = F, port = 6171, ...)
+}
+\arguments{
+\item{bz_data}{the data, prepared with create_bz_data()}
+
+\item{token_auth}{If True, read the .valid_tokens file (create with \code{\link{set_tokens}}) to authenticate tokens. 
+The token should be passed to the app with the ?token URL parameter}
+
+\item{port}{The port}
 }
 \description{
 Run the Shiny Application
