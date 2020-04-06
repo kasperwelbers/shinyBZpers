@@ -9,13 +9,13 @@
 ## Add information about the package that will contain your app
 
 golem::fill_desc(
-  pkg_name = "shinycopy", # The Name of the package containing the App 
+  pkg_name = "shinyBZpers", # The Name of the package containing the App 
   pkg_title = "Text copy shiny app", # The Title of the package containing the App 
   pkg_description = "GUI for using the corpustools compare documents feature.", # The Description of the package containing the App 
   author_first_name = "Kasper", # Your First Name
   author_last_name = "Welbers",  # Your Last Name
   author_email = "kasperwelbers@gmail.com",      # Your Email
-  repo_url = 'https://github.com/kasperwelbers/shinycopy' # The (optional) URL of the GitHub Repo
+  repo_url = 'https://github.com/kasperwelbers/shinyBZpers' # The (optional) URL of the GitHub Repo
 )     
 
 ## Use this desc to set {golem} options

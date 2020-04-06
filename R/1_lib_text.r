@@ -52,22 +52,37 @@ highlight_text <- function(input, output, data, state) {
     x_match = which(x_feature %in% levels(y_feature))
     y_match = which(y_feature %in% levels(x_feature))
     if (ng > 1) {
-      x_match = unique(unlist(lapply(x_match, function(x) (x-ng+1):x)))
-      y_match = unique(unlist(lapply(y_match, function(x) (x-ng+1):x)))
-      x_match = x_match[x_match > 0]
-      y_match = y_match[y_match > 0]
+      #x_match = unique(unlist(lapply(x_match, function(x) (x-ng+1):x)))
+      #y_match = unique(unlist(lapply(y_match, function(x) (x-ng+1):x)))
+      
+      x_match = unique(unlist(lapply(x_match, function(i) {
+        i_ngram = (i-ng+1):i
+        i_ngram = i_ngram[i_ngram > 0]
+        same_doc = x$doc_id[i] == x$doc_id[i_ngram]
+        i_ngram[same_doc]
+      })))
+      y_match = unique(unlist(lapply(y_match, function(i) {
+        i_ngram = (i-ng+1):i
+        i_ngram = i_ngram[i_ngram > 0]
+        same_doc = y$doc_id[i] == y$doc_id[i_ngram]
+        i_ngram[same_doc]
+      })))
+      
+      #x_match = x_match[x_match > 0]
+      #y_match = y_match[y_match > 0]
     }
     
     #x$highlight[x_match] = 0.4 + (0.6*ng/4)
     #y$highlight[y_match] = 0.4 + (0.6*ng/4)
-    x$highlight[x_match] = ng / 2 - 1
-    y$highlight[y_match] = ng / 2 - 1
+    x$highlight[x_match] = ng / 4
+    y$highlight[y_match] = ng / 4
   }
   #x$token = tokenbrowser::highlight_tokens(x$token, x$highlight, col = 'lightyellow')
   #y$token = tokenbrowser::highlight_tokens(y$token, y$highlight, col = 'lightyellow')
 
-  x$token = tokenbrowser::colorscale_tokens(x$token, x$highlight, alpha = 0.3, col_range = c('lightyellow','blue'), span_adjacent = T)
-  y$token = tokenbrowser::colorscale_tokens(y$token, y$highlight, alpha = 0.3, col_range = c('lightyellow','blue'), span_adjacent = T)
+
+  x$token = tokenbrowser::colorscale_tokens(x$token, x$highlight, alpha = 0.3, col_range = c('lightyellow','blue'), span_adjacent = T, doc_id=x$doc_id)
+  y$token = tokenbrowser::colorscale_tokens(y$token, y$highlight, alpha = 0.3, col_range = c('lightyellow','blue'), span_adjacent = T, doc_id=y$doc_id)
   
     
   if ('space' %in% colnames(x)) {
