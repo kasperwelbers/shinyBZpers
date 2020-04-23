@@ -56,13 +56,17 @@ add_comparison_features <- function(tc) {
   tc
 }
 
-tc_db <- function(d, db_file='shinyBZpers.db') {
+tc_db <- function(d, db_file='shinyBZpers.db', udpipe_cores=1) {
   conn <- RSQLite::dbConnect(RSQLite::SQLite(), db_file)
   
   to_do = doc_exists(conn, unique(d$id))
   if (any(to_do)) {
     message(sprintf('\nNeed to parse %s documents', sum(to_do)))
-    tc = corpustools::create_tcorpus(d[to_do,], doc_col='id', text_columns = c('title','text'), remember_spaces=T, udpipe_model='dutch-alpino')
+    if (udpipe_cores > 1)
+      tc = corpustools::create_tcorpus(d[to_do,], doc_col='id', text_columns = c('title','text'), remember_spaces=T, udpipe_model='dutch-alpino', udpipe_cores=udpipe_cores)
+    else
+      tc = corpustools::create_tcorpus(d[to_do,], doc_col='id', text_columns = c('title','text'), remember_spaces=T, udpipe_model='dutch-alpino')
+    
     tc$meta$date = as.POSIXct(tc$meta$date)
     tc$meta$date = as.character(tc$meta$date)
     tc$delete_columns(c('xpos','feats'))

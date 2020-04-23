@@ -49,8 +49,9 @@ function() {
   bz_data = create_bz_data(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=0.9)
   bz_app(bz_data, port = 6171)
   
-  
-  
+
+  bz_data = create_bz_data(conn, project=1916, pers_set=79457, nieuws_set=79457, deduplicate=0.9)
+  bz_app(bz_data, port = 6171)
   
   library(shinyBZpers)
   library(amcatr)

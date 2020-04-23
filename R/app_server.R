@@ -13,6 +13,8 @@ app_server <- function(input, output, session) {
     }
   })
   
+  #observe(check_if_has_pers(session, data))
+  
   state = reactiveValues(doc_ids=c())
   state$sim = data$sim
   state$from_table = make_from_table(input, data, subset(data$sim, weight >= 0.1 & hourdiff >= 0 & hourdiff <= 7*24))
@@ -30,15 +32,20 @@ app_server <- function(input, output, session) {
     updateActionButton(session, 'prepare', '', icon = icon('circle'))
   })
 
-  observeEvent({state$sim; input$pers_of_nieuws; input$aggregate; input$only_matches}, {
+  observeEvent({state$sim; input$pers_of_nieuws; input$only_matches}, {
     if (input$pers_of_nieuws == 'pers') 
       output$articlelist_header = renderText('Selecteer persbericht')
     else
       output$articlelist_header = renderText('Selecteer nieuwsbericht')
     create_graph_data(session, input, output, data, state)
     output$dategraph = create_graph(input, data, state$time_graph_data)
-    #update_persselect(session, input, output, state, daterange())
-    #empty_persselect(output)
+    update_persselect(session, input, output, state, daterange())
+  })
+  
+  observeEvent({input$aggregate}, {
+    create_graph_data(session, input, output, data, state)
+    output$dategraph = create_graph(input, data, state$time_graph_data)
+   
   })
   
   observeEvent(input$media, ignoreNULL = F, {
@@ -94,6 +101,15 @@ app_server <- function(input, output, session) {
                highlight_text(input, output, data, state))
 
  
+}
+
+check_if_has_pers <- function(session, data) {
+  ## this is a hack to quickly enable using the app for only comparing news articles
+  ## it checks if there are no articles where from = 0, en if so, only nieuws can be selected
+  if (data$only_news) {
+    updateSelectInput(session,'pers_of_nieuws', selected='nieuws')
+    shinyjs::hide(id='pers_of_nieuws_column') 
+  }
 }
 
 create_graph_data <- function(session, input, output, data, state) {
