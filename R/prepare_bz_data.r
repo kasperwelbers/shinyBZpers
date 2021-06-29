@@ -51,12 +51,12 @@ rename_cols <- function(d, from, to) {
 #' @export
 create_bz_data <- function(conn, project=1916, pers_set=79431, nieuws_set=79457, deduplicate=NA, 
                            pers_headline_col='headline', pers_medium_col='medium', nieuws_headline_col='headline', nieuws_medium_col='medium', db_path=getwd(),
-                           udpipe_cores=1) {
-  pers = amcatr::amcat.articles(conn, project=project, articleset = pers_set, columns=c("date", pers_medium_col,pers_headline_col,'text'))
+                           udpipe_cores=1, ...) {
+  pers = amcatr::amcat.articles(conn, project=project, articleset = pers_set, columns=c("date", pers_medium_col,pers_headline_col,'text'), ...)
   pers = rename_cols(pers, from=c(pers_medium_col, pers_headline_col), to=c('medium','headline'))
   if (pers_set != nieuws_set) {
     only_news = F ## this is a hack to also use the app for comparing news articles. In time I'll make a more general app that more naturally covers this feature
-    nieuws = amcatr::amcat.articles(conn, project=project, articleset=nieuws_set, col = c('date',nieuws_medium_col,nieuws_headline_col,'text'))   
+    nieuws = amcatr::amcat.articles(conn, project=project, articleset=nieuws_set, col = c('date',nieuws_medium_col,nieuws_headline_col,'text'), ...)   
     nieuws = rename_cols(nieuws, from=c(nieuws_medium_col, nieuws_headline_col), to=c('medium','headline'))
     
     pers$from = 1
